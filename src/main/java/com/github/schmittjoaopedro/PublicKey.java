@@ -21,4 +21,24 @@ public class PublicKey {
         return msgCrypt.toString();
     }
 
+    public String encrypt(String message, Integer blockSize) {
+        StringBuilder msgCrypt = new StringBuilder();
+        StringBuilder msgTemp = new StringBuilder();
+        for(int c = 1; c <= message.length(); c++) {
+            String temp = String.valueOf(((int) message.charAt(c-1)));
+            if(temp.length() == 1) temp = "00" + temp;
+            if(temp.length() == 2) temp = "0" + temp;
+            msgTemp.append(temp);
+            if(c == message.length() || c % blockSize == 0) {
+                BigInteger msgCode = new BigInteger(msgTemp.toString()).modPow(e, n);
+                msgCrypt.append(msgCode.toString());
+                msgTemp = new StringBuilder();
+                if(c != message.length()) {
+                    msgCrypt.append("-");
+                }
+            }
+        }
+        return msgCrypt.toString();
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.github.schmittjoaopedro;
 
+import java.math.BigInteger;
+
 /**
  * Bibliography:
  *
@@ -15,9 +17,9 @@ public class App  {
         rsa.generateKeys();
         String msgPlain = "Joao Pedro Schmitt";
         System.out.println("Original = " + msgPlain);
-        String msgEncrypt = rsa.getPublicKey().encrypt(msgPlain);
+        String msgEncrypt = rsa.getPublicKey().encrypt(msgPlain, 4);
         System.out.println("Encrypted = " + msgEncrypt);
-        String msgDecrypt = rsa.getPrivateKey().decrypt(msgEncrypt);
+        String msgDecrypt = rsa.getPrivateKey().decrypt(msgEncrypt, 4);
         System.out.println("Decrypted = " + msgDecrypt);
     }
 

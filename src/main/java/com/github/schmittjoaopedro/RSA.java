@@ -39,13 +39,13 @@ public class RSA {
     private void generatePrimeNumbers() {
         int half = keySize / 2;
         while(p == null) {
-            BigInteger temp = getRandomNumberBitLength(half);
+            BigInteger temp = getRandomNumber(half);
             if(isPrime(temp)) {
                 p = temp;
             }
         }
         while(q == null) {
-            BigInteger temp = getRandomNumberBitLength(half);
+            BigInteger temp = getRandomNumber(half);
             if(!temp.equals(p) && isPrime(temp)) {
                 q = temp;
             }
@@ -95,15 +95,25 @@ public class RSA {
     /**
      * Big integer generation. [2]
      */
-    private BigInteger getRandomNumberBitLength(int bitLength) {
+    private BigInteger getRandomNumber(int bitLength) {
         Random random = new Random();
         BigInteger n = new BigInteger("2").pow(bitLength);
         BigInteger result = new BigInteger(bitLength, random);
-        while(result.compareTo(n) >= 0) {
+        while(result.compareTo(n) >= 0 || result.compareTo(new BigInteger("1")) < 0) {
             result = new BigInteger(bitLength, random);
         }
         return result;
     }
+
+    private BigInteger getRandomNumber(BigInteger n) {
+        Random random = new Random();
+        BigInteger result = new BigInteger(n.bitLength(), random);
+        while(result.compareTo(n) >= 0 || result.compareTo(new BigInteger("1")) < 0) {
+            result = new BigInteger(n.bitLength(), random);
+        }
+        return result;
+    }
+
 
     public PublicKey getPublicKey() {
         return this.publicKey;
@@ -113,12 +123,39 @@ public class RSA {
         return this.privateKey;
     }
 
-    /**
-     * REVER
-     */
+    private boolean isPrime(BigInteger n) {
+        if(isMod2(n)) {
+            return false;
+        } else {
+            BigInteger n1 = n.subtract(new BigInteger("1"));
+            int k = 0;
+            BigInteger q = n1;
+            while (isMod2(q)) {
+                q = q.divide(new BigInteger("2"));
+                k++;
+            }
+            long times = BigDecimalMath.log(new BigDecimal(n), new MathContext(0)).longValue();
+            for(long j = 0; j < times; j++) {
+                if(!isPrimeMillerRabin(n, k, q)) return false;
+            }
+            return true;
+        }
+    }
 
-    private boolean isPrime(BigInteger bigInteger) {
-        return bigInteger.isProbablePrime(100);
+    private boolean isMod2(BigInteger n) {
+        return n.mod(new BigInteger("2")).compareTo(new BigInteger("0")) == 0;
+    }
+
+    private boolean isPrimeMillerRabin(BigInteger n, int k, BigInteger q) {
+        BigInteger a = getRandomNumber(n);
+        // a^q mod n == 1
+        if(a.modPow(q, n).compareTo(new BigInteger("1")) == 0) return true;
+        for (int j = 0; j < k; j++) {
+            // a^((2^j)*q) mod n
+            BigInteger mod = a.modPow(new BigInteger("2").pow(j).multiply(q), n);
+            if(mod.compareTo(n.subtract(new BigInteger("1"))) == 0) return true;
+        }
+        return false;
     }
 
 }

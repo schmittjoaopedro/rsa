@@ -20,6 +20,12 @@ public class MDC {
 
     /**
      * Algorithm: (Euclidean algorithm) Computing the greatest common divisor of two integers. [4]
+     *
+     * Para a = 348 e b = 156
+     *
+     *  q   |  2  |  4  |  3  |
+     *  348 | 156 |  36 |  12 |
+     *  r   |  36 |  12 |  0  |
      */
     public BigInteger getMDC() {
         BigInteger a = this.a;

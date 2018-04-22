@@ -43,6 +43,9 @@ public class MDC {
         return a;
     }
 
+    /**
+     * Modular inverse [5].
+     */
     public BigInteger getModInv() {
         if(a.compareTo(b) < 0) {
             BigInteger aux = b;
@@ -69,6 +72,9 @@ public class MDC {
         return p1;
     }
 
+    /**
+     * Calculate the inverse factors "x" and "y" of "a" and "b", given: ax + by = gcd(a,b). [6]
+     */
     public void calculateEuclidean() {
         if(a.compareTo(b) < 0) {
             BigInteger aux = a;

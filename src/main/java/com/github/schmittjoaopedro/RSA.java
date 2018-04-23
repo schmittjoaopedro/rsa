@@ -10,7 +10,8 @@ import java.util.Random;
 public class RSA {
 
     /**
-     * Um tamanho típico para n é de 1024-bits, ou 309 dígitos decimais. Ou seja, n é menor do que 2^1024. [1]
+     * Um tamanho típico para n é de 1024-bits, ou 309 dígitos decimais. Ou seja, n é menor do que 2^1024.
+     * Além disso, o tamanho da mensagem M deve ser menor do que o valor de n. [1]
      */
     private int keySize = 1024;
 
@@ -25,6 +26,15 @@ public class RSA {
     private PublicKey publicKey;
 
     private PrivateKey privateKey;
+
+    public RSA() {
+        super();
+    }
+
+    public RSA(int keySize) {
+        super();
+        this.keySize = keySize;
+    }
 
     public void generateKeys() {
         generatePrimeNumbers();
@@ -93,6 +103,7 @@ public class RSA {
         publicKey = new PublicKey();
         publicKey.n = n;
         for(BigInteger e : tries) {
+            if(e.compareTo(new BigInteger(String.valueOf(keySize))) > 0) continue;
             MDC mdc = new MDC();
             mdc.a = e;
             mdc.b = phi;
@@ -101,6 +112,7 @@ public class RSA {
                 break;
             }
         }
+        if(publicKey.e == null) throw new RuntimeException("Not found public key");
     }
 
     private void createPrivateKey() {

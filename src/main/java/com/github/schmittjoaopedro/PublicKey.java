@@ -30,7 +30,9 @@ public class PublicKey {
             if(temp.length() == 2) temp = "0" + temp;
             msgTemp.append(temp);
             if(c == message.length() || c % blockSize == 0) {
-                BigInteger msgCode = new BigInteger(msgTemp.toString()).modPow(e, n);
+                BigInteger msgNumber = new BigInteger(msgTemp.toString());
+                if(msgNumber.compareTo(n) > 0) throw new RuntimeException("Restriction error, M has to be less than n.");
+                BigInteger msgCode = msgNumber.modPow(e, n);
                 msgCrypt.append(msgCode.toString());
                 msgTemp = new StringBuilder();
                 if(c != message.length()) {

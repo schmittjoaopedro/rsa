@@ -11,11 +11,12 @@ import java.math.BigInteger;
  * [4] w. David Ireland, "The Euclidean Algorithm and the Extended Euclidean Algorithm", Di-mgt.com.au, 2018. [Online]. Available: https://www.di-mgt.com.au/euclidean.html. [Accessed: 21- Apr- 2018].
  * [5] "Extended Euclidean Algorithm", Www-math.ucdenver.edu, 2018. [Online]. Available: http://www-math.ucdenver.edu/~wcherowi/courses/m5410/exeucalg.html. [Accessed: 22- Apr- 2018].
  * [6] S. Dasgupta, C. Papadimitriou and U. Vazirani, Algorithms.
+ * [7] W. RSA?, "Why do we need Euler's totient function $\varphi(N)$ in RSA?", Crypto.stackexchange.com, 2018. [Online]. Available: https://crypto.stackexchange.com/questions/33676/why-do-we-need-eulers-totient-function-varphin-in-rsa. [Accessed: 22- Apr- 2018].
  */
 public class App  {
 
     public static void main( String[] args ) {
-        RSA rsa = new RSA();
+        RSA rsa = new RSA(64);
         rsa.generateKeys();
         String msgPlain = "Joao Pedro Schmitt";
         System.out.println("Original = " + msgPlain);

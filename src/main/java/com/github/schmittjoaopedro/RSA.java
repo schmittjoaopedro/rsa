@@ -195,6 +195,7 @@ public class RSA {
             int k = 0;
             BigInteger q = n1;
             while (isMod2(q)) {
+                if(q.equals(new BigInteger("0"))) return false;
                 q = q.divide(new BigInteger("2"));
                 k++;
             }

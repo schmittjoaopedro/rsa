@@ -30,7 +30,7 @@ public class App {
 
     public static boolean testRSA(int bitSize, int trial, String msgPlain) {
         RSA rsa = new RSA(bitSize);
-        String rec = trial + ";" + bitSize + ";";
+        String rec = "\n" + trial + ";" + bitSize + ";";
         try {
             long time = System.currentTimeMillis();
             rsa.generateKeys();

@@ -8,16 +8,7 @@ public class PrivateKey {
 
     public BigInteger d;
 
-    public String decrypt(String msgCrypt) {
-        StringBuilder msgPlain = new StringBuilder();
-        for(String block : msgCrypt.split("-")) {
-            BigInteger charPlain = new BigInteger(block).modPow(d, n);
-            msgPlain.append((char) charPlain.intValue());
-        }
-        return msgPlain.toString();
-    }
-
-    public String decrypt(String message, Integer blockSize) {
+    public String decrypt(String message) {
         StringBuilder msgPlain = new StringBuilder();
         for(String block : message.split("-")) {
             String msgBlock = new BigInteger(block).modPow(d, n).toString();

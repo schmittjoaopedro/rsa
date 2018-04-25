@@ -15,6 +15,8 @@ public class RSA {
      */
     private int keySize = 1024;
 
+    private BigInteger lowBound = new BigInteger("200");
+
     private BigInteger p = null;
 
     private BigInteger q = null;
@@ -48,13 +50,13 @@ public class RSA {
         int half = keySize / 2;
         while(p == null) {
             BigInteger temp = getRandomNumber(half);
-            if(isPrime(temp)) {
+            if(temp.compareTo(lowBound) > 0 && isPrime(temp)) {
                 p = temp;
             }
         }
         while(q == null) {
             BigInteger temp = getRandomNumber(half);
-            if(!temp.equals(p) && isPrime(temp)) {
+            if(temp.compareTo(lowBound) > 0 && !temp.equals(p) && isPrime(temp)) {
                 q = temp;
             }
         }
@@ -104,7 +106,7 @@ public class RSA {
         publicKey.n = n;
         publicKey.keySize = keySize;
         for(BigInteger e : tries) {
-            if(e.compareTo(new BigInteger(String.valueOf(keySize))) > 0) continue;
+            if(e.compareTo(phi) > 0) continue;
             MDC mdc = new MDC();
             mdc.a = e;
             mdc.b = phi;

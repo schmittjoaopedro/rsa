@@ -26,7 +26,7 @@ public class App {
         options.addOption(Option.builder("e").longOpt("encrypt").hasArg().numberOfArgs(1).argName("pub_key_file").desc("Encrypt file").build());
         options.addOption(Option.builder("d").longOpt("decrypt").hasArg().numberOfArgs(1).argName("pri_key_file").desc("Decrypt file").build());
         options.addOption(Option.builder("b").longOpt("break").hasArg().numberOfArgs(1).argName("public_key_file").desc("Break code").required(false).build());
-        options.addOption(Option.builder("o").longOpt("outputDir").required(false).hasArg().numberOfArgs(1).argName("output_dir").desc("Output dir").build());
+        options.addOption(Option.builder("o").longOpt("output").required(false).hasArg().numberOfArgs(1).argName("output_file").desc("Output file").build());
         options.addOption(Option.builder("s").longOpt("samples").required(false).hasArg().numberOfArgs(1).argName("samples").desc("Samples separated by comma").build());
         options.addOption(Option.builder("t").longOpt("testTrials").required(false).hasArg().numberOfArgs(1).argName("trials").desc("Trials number").build());
 
@@ -35,28 +35,25 @@ public class App {
 
         if (cmd.hasOption("g")) {
             int keySize = Integer.valueOf(cmd.getOptionValue("g"));
-            String outputDir = "";
-            if(cmd.hasOption("o"))
-                outputDir = cmd.getOptionValue("o");
-            generateKeyFiles(keySize, outputDir);
+            generateKeyFiles(keySize);
         } else if (cmd.hasOption("e") && cmd.hasOption("i")) {
             String inputFile = cmd.getOptionValue("i");
             String publicKey = cmd.getOptionValue("e");
-            String outputDir = "";
+            String outputDir = "encrypted_message.rsa";
             if(cmd.hasOption("o"))
                 outputDir = cmd.getOptionValue("o");
             encrypt(inputFile, publicKey, outputDir);
         } else if (cmd.hasOption("d") && cmd.hasOption("i")) {
             String inputFile = cmd.getOptionValue("i");
             String decryptKey = cmd.getOptionValue("d");
-            String outputDir = "";
+            String outputDir = "original.txt";
             if(cmd.hasOption("o"))
                 outputDir = cmd.getOptionValue("o");
             decrypt(inputFile, decryptKey, outputDir);
         } else if (cmd.hasOption("b") && cmd.hasOption("i")) {
             String inputFile = cmd.getOptionValue("i");
             String publicKey = cmd.getOptionValue("b");
-            String outputDir = "";
+            String outputDir = "brute_force.txt";
             if(cmd.hasOption("o"))
                 outputDir = cmd.getOptionValue("o");
             broke(inputFile, publicKey, outputDir);
@@ -68,7 +65,7 @@ public class App {
                 keySizes[i] = Integer.valueOf(samples[i]);
             }
             String inputFile = cmd.getOptionValue("i");
-            String outputDir = "";
+            String outputDir = "results.csv";
             if(cmd.hasOption("o"))
                 outputDir = cmd.getOptionValue("o");
             TestExecutor.executeBruteForce(inputFile, outputDir, keySizes, trials);
@@ -79,32 +76,32 @@ public class App {
 
     }
 
-    private static void generateKeyFiles(int keySize, String outputDir) throws Exception {
+    private static void generateKeyFiles(int keySize) throws Exception {
         RSA rsa = new RSA(keySize);
         rsa.generateKeys();
-        FileUtils.writeByteArrayToFile(Paths.get(outputDir, "public_key.rsa").toFile(), serialize(rsa.getPublicKey()));
-        FileUtils.writeByteArrayToFile(Paths.get(outputDir, "private_key.rsa").toFile(), serialize(rsa.getPrivateKey()));
+        FileUtils.writeByteArrayToFile(Paths.get("public_key.rsa").toFile(), serialize(rsa.getPublicKey()));
+        FileUtils.writeByteArrayToFile(Paths.get("private_key.rsa").toFile(), serialize(rsa.getPrivateKey()));
     }
 
-    private static void encrypt(String inputFile, String publicKey, String outputDir) throws Exception {
+    private static void encrypt(String inputFile, String publicKey, String outputFile) throws Exception {
         PublicKey pubK = (PublicKey) deserialize(FileUtils.readFileToByteArray(Paths.get(publicKey).toFile()));
         String message = FileUtils.readFileToString(Paths.get(inputFile).toFile(), "UTF-8");
         EncryptedMessage encryptedMessage = new EncryptedMessage();
         encryptedMessage.crypto = pubK.encrypt(message);
-        FileUtils.writeByteArrayToFile(Paths.get(outputDir, "encrypted_message.rsa").toFile(), serialize(encryptedMessage));
+        FileUtils.writeByteArrayToFile(Paths.get(outputFile).toFile(), serialize(encryptedMessage));
     }
 
-    private static void decrypt(String inputFile, String decryptKey, String outputDir) throws Exception {
+    private static void decrypt(String inputFile, String decryptKey, String outputFile) throws Exception {
         PrivateKey priK = (PrivateKey) deserialize(FileUtils.readFileToByteArray(Paths.get(decryptKey).toFile()));
         EncryptedMessage encryptedMessage = (EncryptedMessage) deserialize(FileUtils.readFileToByteArray(Paths.get(inputFile).toFile()));
-        FileUtils.write(Paths.get(outputDir, "original.txt").toFile(), priK.decrypt(encryptedMessage.crypto), "UTF-8");
+        FileUtils.write(Paths.get(outputFile).toFile(), priK.decrypt(encryptedMessage.crypto), "UTF-8");
     }
 
-    private static void broke(String inputFile, String publicKey, String outputDir) throws Exception {
+    private static void broke(String inputFile, String publicKey, String outputFile) throws Exception {
         PublicKey pubK = (PublicKey) deserialize(FileUtils.readFileToByteArray(Paths.get(publicKey).toFile()));
         EncryptedMessage encryptedMessage = (EncryptedMessage) deserialize(FileUtils.readFileToByteArray(Paths.get(inputFile).toFile()));
         String solution = BruteForce.solve(pubK, encryptedMessage.crypto);
-        FileUtils.write(Paths.get(outputDir, "brute_force.txt").toFile(), solution, "UTF-8");
+        FileUtils.write(Paths.get(outputFile).toFile(), solution, "UTF-8");
     }
 
     public static byte[] serialize(Object obj) throws IOException {

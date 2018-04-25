@@ -14,7 +14,7 @@ public class BruteForce {
         BigInteger n = publicKey.n;
         BigInteger max = BigDecimalMath.sqrt(new BigDecimal(n), new MathContext(0)).toBigInteger();
         BigInteger i = new BigInteger("3");
-        for(; i.compareTo(max) < 0; i = i.add(new BigInteger("2"))) {
+        for(; i.compareTo(max) <= 0; i = i.add(new BigInteger("2"))) {
             if(n.mod(i).equals(new BigInteger("0"))) {
                 p = n.divide(i);
                 q = i;

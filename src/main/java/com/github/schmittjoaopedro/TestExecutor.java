@@ -8,13 +8,13 @@ public class TestExecutor {
 
     public static void executeBruteForce(String messageFile, String outputDir, int[] keysSize, int trials) throws Exception {
         String message = FileUtils.readFileToString(Paths.get(messageFile).toFile(), "UTF-8");
-        FileUtils.write(Paths.get(outputDir, "results.csv").toFile(), "generate_keys;encrypt;decrypt;brute_force\n", "UTF-8", true);
+        FileUtils.write(Paths.get(outputDir, "results.csv").toFile(), "key_size;generate_keys;encrypt;decrypt;brute_force\n", "UTF-8", true);
         for(int t = 0; t < trials; t++) {
             for(int keySize : keysSize) {
                 RSA rsa = new RSA(keySize);
                 long time = System.currentTimeMillis();
                 rsa.generateKeys();
-                String csvSample = (System.currentTimeMillis() - time) + ";";
+                String csvSample = keySize + ";" + (System.currentTimeMillis() - time) + ";";
                 time = System.currentTimeMillis();
                 String encrypted = rsa.getPublicKey().encrypt(message);
                 csvSample += (System.currentTimeMillis() - time) + ";";

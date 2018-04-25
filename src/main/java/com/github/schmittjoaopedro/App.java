@@ -4,7 +4,6 @@ import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**

@@ -102,6 +102,7 @@ public class RSA {
         tries[4] = new BigInteger("3");
         publicKey = new PublicKey();
         publicKey.n = n;
+        publicKey.keySize = keySize;
         for(BigInteger e : tries) {
             if(e.compareTo(new BigInteger(String.valueOf(keySize))) > 0) continue;
             MDC mdc = new MDC();
@@ -118,6 +119,7 @@ public class RSA {
     private void createPrivateKey() {
         privateKey = new PrivateKey();
         privateKey.n = n;
+        privateKey.keySize = keySize;
         MDC mdc = new MDC();
         mdc.a = publicKey.e;
         mdc.b = phi;

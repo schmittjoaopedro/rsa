@@ -1,10 +1,11 @@
 package com.github.schmittjoaopedro;
 
+import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.math.BigInteger;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Bibliography:
@@ -19,41 +20,105 @@ import java.math.BigInteger;
  */
 public class App {
 
-    public static void main(String[] args) {
-        String msgPlain = "Curso de Pos Graduacao em Computacao Aplicada UDESC";
-        for(int i = 18; i < 4096; i++) {
-            for(int t = 1; t < 30; t++) {
-                testRSA(i, t, msgPlain);
+    public static void main(String[] args) throws Exception {
+        Options options = new Options();
+        options.addOption(Option.builder("g").longOpt("generateKeys").hasArg().numberOfArgs(1).argName("key_size").desc("Generate keys").required(false).build());
+        options.addOption(Option.builder("i").longOpt("input").hasArg().numberOfArgs(1).argName("input_file").desc("Input file for processing").build());
+        options.addOption(Option.builder("e").longOpt("encrypt").hasArg().numberOfArgs(1).argName("pub_key_file").desc("Encrypt file").build());
+        options.addOption(Option.builder("d").longOpt("decrypt").hasArg().numberOfArgs(1).argName("pri_key_file").desc("Decrypt file").build());
+        options.addOption(Option.builder("b").longOpt("break").hasArg().numberOfArgs(1).argName("public_key_file").desc("Break code").required(false).build());
+        options.addOption(Option.builder("o").longOpt("outputDir").required(false).hasArg().numberOfArgs(1).argName("output_dir").desc("Output dir").build());
+        options.addOption(Option.builder("s").longOpt("samples").required(false).hasArg().numberOfArgs(1).argName("samples").desc("Samples separated by comma").build());
+        options.addOption(Option.builder("t").longOpt("testTrials").required(false).hasArg().numberOfArgs(1).argName("trials").desc("Trials number").build());
+
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(options, args);
+
+        if (cmd.hasOption("g")) {
+            int keySize = Integer.valueOf(cmd.getOptionValue("g"));
+            String outputDir = "";
+            if(cmd.hasOption("o"))
+                outputDir = cmd.getOptionValue("o");
+            generateKeyFiles(keySize, outputDir);
+        } else if (cmd.hasOption("e") && cmd.hasOption("i")) {
+            String inputFile = cmd.getOptionValue("i");
+            String publicKey = cmd.getOptionValue("e");
+            String outputDir = "";
+            if(cmd.hasOption("o"))
+                outputDir = cmd.getOptionValue("o");
+            encrypt(inputFile, publicKey, outputDir);
+        } else if (cmd.hasOption("d") && cmd.hasOption("i")) {
+            String inputFile = cmd.getOptionValue("i");
+            String decryptKey = cmd.getOptionValue("d");
+            String outputDir = "";
+            if(cmd.hasOption("o"))
+                outputDir = cmd.getOptionValue("o");
+            decrypt(inputFile, decryptKey, outputDir);
+        } else if (cmd.hasOption("b") && cmd.hasOption("i")) {
+            String inputFile = cmd.getOptionValue("i");
+            String publicKey = cmd.getOptionValue("b");
+            String outputDir = "";
+            if(cmd.hasOption("o"))
+                outputDir = cmd.getOptionValue("o");
+            broke(inputFile, publicKey, outputDir);
+        } else if (cmd.hasOption("s") && cmd.hasOption("t") && cmd.hasOption("i")) {
+            int trials = Integer.valueOf(cmd.getOptionValue("t"));
+            String samples[] = cmd.getOptionValue("s").split(",");
+            int keySizes[] = new int[samples.length];
+            for(int i = 0; i < samples.length; i++) {
+                keySizes[i] = Integer.valueOf(samples[i]);
             }
+            String inputFile = cmd.getOptionValue("i");
+            String outputDir = "";
+            if(cmd.hasOption("o"))
+                outputDir = cmd.getOptionValue("o");
+            TestExecutor.executeBruteForce(inputFile, outputDir, keySizes, trials);
+        } else {
+            HelpFormatter helpFormatter = new HelpFormatter();
+            helpFormatter.printHelp("rsa", options);
         }
+
     }
 
-    public static boolean testRSA(int bitSize, int trial, String msgPlain) {
-        RSA rsa = new RSA(bitSize);
-        String rec = "\n" + trial + ";" + bitSize + ";";
-        try {
-            long time = System.currentTimeMillis();
-            rsa.generateKeys();
-            rec += (System.currentTimeMillis() - time) + ";"; time = System.currentTimeMillis();
-            //System.out.println("Original = " + msgPlain);
-            String msgEncrypt = rsa.getPublicKey().encrypt(msgPlain, 1);
-            rec += (System.currentTimeMillis() - time) + ";"; time = System.currentTimeMillis();
-            //System.out.println("Encrypted = " + msgEncrypt);
-            String msgDecrypt = rsa.getPrivateKey().decrypt(msgEncrypt);
-            rec += (System.currentTimeMillis() - time) + ";"; time = System.currentTimeMillis();
-            //System.out.println("Decrypted = " + msgDecrypt);
-            if (msgPlain.equals(msgDecrypt)) {
-                String broken = BruteForce.broke(rsa, msgEncrypt);
-                rec += (System.currentTimeMillis() - time);
-                if(broken.equals(msgDecrypt)) {
-                    try {
-                        FileUtils.write(new File("result.csv"), rec, "UTF-8", true);
-                    } catch (Exception e) {}
-                    return true;
-                }
-            }
-        } catch (Exception ex) { }
-        return false;
+    private static void generateKeyFiles(int keySize, String outputDir) throws Exception {
+        RSA rsa = new RSA(keySize);
+        rsa.generateKeys();
+        FileUtils.writeByteArrayToFile(Paths.get(outputDir, "public_key.rsa").toFile(), serialize(rsa.getPublicKey()));
+        FileUtils.writeByteArrayToFile(Paths.get(outputDir, "private_key.rsa").toFile(), serialize(rsa.getPrivateKey()));
+    }
+
+    private static void encrypt(String inputFile, String publicKey, String outputDir) throws Exception {
+        PublicKey pubK = (PublicKey) deserialize(FileUtils.readFileToByteArray(Paths.get(publicKey).toFile()));
+        String message = FileUtils.readFileToString(Paths.get(inputFile).toFile(), "UTF-8");
+        EncryptedMessage encryptedMessage = new EncryptedMessage();
+        encryptedMessage.crypto = pubK.encrypt(message);
+        FileUtils.writeByteArrayToFile(Paths.get(outputDir, "encrypted_message.rsa").toFile(), serialize(encryptedMessage));
+    }
+
+    private static void decrypt(String inputFile, String decryptKey, String outputDir) throws Exception {
+        PrivateKey priK = (PrivateKey) deserialize(FileUtils.readFileToByteArray(Paths.get(decryptKey).toFile()));
+        EncryptedMessage encryptedMessage = (EncryptedMessage) deserialize(FileUtils.readFileToByteArray(Paths.get(inputFile).toFile()));
+        FileUtils.write(Paths.get(outputDir, "original.txt").toFile(), priK.decrypt(encryptedMessage.crypto), "UTF-8");
+    }
+
+    private static void broke(String inputFile, String publicKey, String outputDir) throws Exception {
+        PublicKey pubK = (PublicKey) deserialize(FileUtils.readFileToByteArray(Paths.get(publicKey).toFile()));
+        EncryptedMessage encryptedMessage = (EncryptedMessage) deserialize(FileUtils.readFileToByteArray(Paths.get(inputFile).toFile()));
+        String solution = BruteForce.solve(pubK, encryptedMessage.crypto);
+        FileUtils.write(Paths.get(outputDir, "brute_force.txt").toFile(), solution, "UTF-8");
+    }
+
+    public static byte[] serialize(Object obj) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(out);
+        os.writeObject(obj);
+        return out.toByteArray();
+    }
+
+    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        ObjectInputStream is = new ObjectInputStream(in);
+        return is.readObject();
     }
 
 }

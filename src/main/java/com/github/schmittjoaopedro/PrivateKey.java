@@ -1,8 +1,11 @@
 package com.github.schmittjoaopedro;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
-public class PrivateKey {
+public class PrivateKey implements Serializable {
+
+    public int keySize;
 
     public BigInteger n;
 

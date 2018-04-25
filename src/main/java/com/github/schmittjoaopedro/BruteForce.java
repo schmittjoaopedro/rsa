@@ -8,10 +8,10 @@ import java.math.MathContext;
 
 public class BruteForce {
 
-    public static String broke(RSA rsa, String crypt) {
+    public static String solve(PublicKey publicKey, String crypt) {
         BigInteger p = null;
         BigInteger q = null;
-        BigInteger n = rsa.getPublicKey().n;
+        BigInteger n = publicKey.n;
         BigInteger max = BigDecimalMath.sqrt(new BigDecimal(n), new MathContext(0)).toBigInteger();
         BigInteger i = new BigInteger("3");
         for(; i.compareTo(max) < 0; i = i.add(new BigInteger("2"))) {
@@ -22,10 +22,10 @@ public class BruteForce {
             }
         }
         MDC mdc = new MDC();
-        mdc.a = rsa.getPublicKey().e;
+        mdc.a = publicKey.e;
         mdc.b = getTotientEuler(p, q);
         PrivateKey privateKey = new PrivateKey();
-        privateKey.n = rsa.getPublicKey().n;
+        privateKey.n = publicKey.n;
         privateKey.d = mdc.getModInv();
         return privateKey.decrypt(crypt);
     }

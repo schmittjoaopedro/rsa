@@ -16,6 +16,7 @@ import java.nio.file.Paths;
  * [5] "Extended Euclidean Algorithm", Www-math.ucdenver.edu, 2018. [Online]. Available: http://www-math.ucdenver.edu/~wcherowi/courses/m5410/exeucalg.html. [Accessed: 22- Apr- 2018].
  * [6] S. Dasgupta, C. Papadimitriou and U. Vazirani, Algorithms.
  * [7] W. RSA?, "Why do we need Euler's totient function $\varphi(N)$ in RSA?", Crypto.stackexchange.com, 2018. [Online]. Available: https://crypto.stackexchange.com/questions/33676/why-do-we-need-eulers-totient-function-varphin-in-rsa. [Accessed: 22- Apr- 2018].
+ * [8] "A Quick Tutorial on Pollard's Rho Algorithm", Cs.colorado.edu, 2018. [Online]. Available: https://www.cs.colorado.edu/~srirams/courses/csci2824-spr14/pollardsRho.html. [Accessed: 26- Apr- 2018].
  */
 public class App {
 
@@ -25,7 +26,8 @@ public class App {
         options.addOption(Option.builder("i").longOpt("input").hasArg().numberOfArgs(1).argName("input_file").desc("Input file for processing").build());
         options.addOption(Option.builder("e").longOpt("encrypt").hasArg().numberOfArgs(1).argName("pub_key_file").desc("Encrypt file").build());
         options.addOption(Option.builder("d").longOpt("decrypt").hasArg().numberOfArgs(1).argName("pri_key_file").desc("Decrypt file").build());
-        options.addOption(Option.builder("b").longOpt("break").hasArg().numberOfArgs(1).argName("public_key_file").desc("Break code").required(false).build());
+        options.addOption(Option.builder("b").longOpt("brute").hasArg().numberOfArgs(1).argName("public_key_file").desc("Break code with brute-force").required(false).build());
+        options.addOption(Option.builder("p").longOpt("pollard").hasArg().numberOfArgs(1).argName("public_key_file").desc("Break code with pollard-force").required(false).build());
         options.addOption(Option.builder("o").longOpt("output").required(false).hasArg().numberOfArgs(1).argName("output_file").desc("Output file").build());
         options.addOption(Option.builder("s").longOpt("samples").required(false).hasArg().numberOfArgs(1).argName("samples").desc("Samples separated by comma").build());
         options.addOption(Option.builder("t").longOpt("testTrials").required(false).hasArg().numberOfArgs(1).argName("trials").desc("Trials number").build());

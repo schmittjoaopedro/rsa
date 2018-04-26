@@ -52,23 +52,27 @@ public class AppTest {
     @Test
     public void appTestError() {
         String msg = "Universidade do Estado de Santa Catarina UDESC";
-        RSA rsa = new RSA(16);
+        int keySize = 16;
+        RSA rsa = new RSA(keySize);
         rsa.generateKeys();
-        rsa.getPublicKey().keySize = 16;
-        rsa.getPublicKey().e = new BigInteger("257");
-        rsa.getPublicKey().n = new BigInteger("51983");
-        rsa.getPrivateKey().keySize = 16;
-        rsa.getPrivateKey().d = new BigInteger("401");
-        rsa.getPrivateKey().n = new BigInteger("51983");
         String encrypted = rsa.getPublicKey().encrypt(msg);
         String decrypted = rsa.getPrivateKey().decrypt(encrypted);
-        String bruteForce = BruteForce.solve(rsa.getPublicKey(), encrypted);
+
         System.out.println(msg);
         System.out.println(encrypted);
         System.out.println(decrypted);
         Assert.assertNotEquals(msg, encrypted);
         Assert.assertEquals(msg, decrypted);
+
+        long time = System.currentTimeMillis();
+        String bruteForce = BruteForce.solve(rsa.getPublicKey(), encrypted);
         Assert.assertEquals(msg, bruteForce);
+        System.out.println("BruteForce = " + (System.currentTimeMillis() - time));
+
+        time = System.currentTimeMillis();
+        bruteForce = PollardForce.solve(rsa.getPublicKey(), encrypted);
+        Assert.assertEquals(msg, bruteForce);
+        System.out.println("PollardForce = " + (System.currentTimeMillis() - time));
     }
 
 }

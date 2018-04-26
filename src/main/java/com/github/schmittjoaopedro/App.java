@@ -31,6 +31,7 @@ public class App {
         options.addOption(Option.builder("o").longOpt("output").required(false).hasArg().numberOfArgs(1).argName("output_file").desc("Output file").build());
         options.addOption(Option.builder("s").longOpt("samples").required(false).hasArg().numberOfArgs(1).argName("samples").desc("Samples separated by comma").build());
         options.addOption(Option.builder("t").longOpt("testTrials").required(false).hasArg().numberOfArgs(1).argName("trials").desc("Trials number").build());
+        options.addOption(Option.builder("a").longOpt("algorithm").required(false).hasArg().numberOfArgs(1).argName("algorithm").desc("Algorithm brute or pollard").build());
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
@@ -58,8 +59,15 @@ public class App {
             String outputDir = "brute_force.txt";
             if(cmd.hasOption("o"))
                 outputDir = cmd.getOptionValue("o");
-            broke(inputFile, publicKey, outputDir);
-        } else if (cmd.hasOption("s") && cmd.hasOption("t") && cmd.hasOption("i")) {
+            bruteForce(inputFile, publicKey, outputDir);
+        } else if (cmd.hasOption("p") && cmd.hasOption("i")) {
+            String inputFile = cmd.getOptionValue("i");
+            String publicKey = cmd.getOptionValue("p");
+            String outputDir = "brute_force.txt";
+            if(cmd.hasOption("o"))
+                outputDir = cmd.getOptionValue("o");
+            pollardForce(inputFile, publicKey, outputDir);
+        } else if (cmd.hasOption("s") && cmd.hasOption("t") && cmd.hasOption("i") && cmd.hasOption("a")) {
             int trials = Integer.valueOf(cmd.getOptionValue("t"));
             String samples[] = cmd.getOptionValue("s").split(",");
             int keySizes[] = new int[samples.length];
@@ -70,7 +78,7 @@ public class App {
             String outputDir = "results.csv";
             if(cmd.hasOption("o"))
                 outputDir = cmd.getOptionValue("o");
-            TestExecutor.executeBruteForce(inputFile, outputDir, keySizes, trials);
+            TestExecutor.executeBruteForce(inputFile, outputDir, keySizes, trials, cmd.getOptionValue("a"));
         } else {
             HelpFormatter helpFormatter = new HelpFormatter();
             helpFormatter.printHelp("rsa", options);
@@ -99,10 +107,17 @@ public class App {
         FileUtils.write(Paths.get(outputFile).toFile(), priK.decrypt(encryptedMessage.crypto), "UTF-8");
     }
 
-    private static void broke(String inputFile, String publicKey, String outputFile) throws Exception {
+    private static void bruteForce(String inputFile, String publicKey, String outputFile) throws Exception {
         PublicKey pubK = (PublicKey) deserialize(FileUtils.readFileToByteArray(Paths.get(publicKey).toFile()));
         EncryptedMessage encryptedMessage = (EncryptedMessage) deserialize(FileUtils.readFileToByteArray(Paths.get(inputFile).toFile()));
         String solution = BruteForce.solve(pubK, encryptedMessage.crypto);
+        FileUtils.write(Paths.get(outputFile).toFile(), solution, "UTF-8");
+    }
+
+    private static void pollardForce(String inputFile, String publicKey, String outputFile) throws Exception {
+        PublicKey pubK = (PublicKey) deserialize(FileUtils.readFileToByteArray(Paths.get(publicKey).toFile()));
+        EncryptedMessage encryptedMessage = (EncryptedMessage) deserialize(FileUtils.readFileToByteArray(Paths.get(inputFile).toFile()));
+        String solution = PollardForce.solve(pubK, encryptedMessage.crypto);
         FileUtils.write(Paths.get(outputFile).toFile(), solution, "UTF-8");
     }
 

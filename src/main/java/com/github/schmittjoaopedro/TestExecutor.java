@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 
 public class TestExecutor {
 
-    public static void executeBruteForce(String messageFile, String outputFile, int[] keysSize, int trials) throws Exception {
+    public static void executeBruteForce(String messageFile, String outputFile, int[] keysSize, int trials, String algorithm) throws Exception {
         String message = FileUtils.readFileToString(Paths.get(messageFile).toFile(), "UTF-8");
         FileUtils.write(Paths.get(outputFile).toFile(), "key_size;generate_keys;encrypt;decrypt;brute_force\n", "UTF-8", true);
         for(int keySize : keysSize) {
@@ -26,7 +26,12 @@ public class TestExecutor {
                     csvSample += "-1;";
                 }
                 time = System.currentTimeMillis();
-                String bruteForce = BruteForce.solve(rsa.getPublicKey(), encrypted);
+                String bruteForce = "";
+                if("brute".equals(algorithm)) {
+                    bruteForce = BruteForce.solve(rsa.getPublicKey(), encrypted);
+                } else {
+                    bruteForce = PollardForce.solve(rsa.getPublicKey(), encrypted);
+                }
                 if (bruteForce.equals(message)) {
                     csvSample += (System.currentTimeMillis() - time) + ";\n";
                 } else {

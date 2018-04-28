@@ -11,10 +11,10 @@ public class PrivateKey implements Serializable {
 
     public BigInteger d;
 
-    public String decrypt(String message) {
+    public String decrypt(String message) { // O(n^3)
         StringBuilder msgPlain = new StringBuilder();
-        for(String block : message.split("-")) {
-            String msgBlock = new BigInteger(block).modPow(d, n).toString();
+        for(String block : message.split("-")) { // O(m)
+            String msgBlock = new BigInteger(block).modPow(d, n).toString(); // Exponenciação modular = O(n^3)
             int end = msgBlock.length();
             String messageTemp = "";
             while(end > 0) {

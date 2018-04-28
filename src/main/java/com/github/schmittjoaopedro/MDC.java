@@ -27,7 +27,7 @@ public class MDC {
      *  348 | 156 |  36 |  12 |
      *  r   |  36 |  12 |  0  |
      */
-    public BigInteger getMDC() {
+    public BigInteger getMDC() { // O(n^3) [6]
         BigInteger a = this.a;
         BigInteger b = this.b;
         if(a.compareTo(b) < 0) {
@@ -58,7 +58,7 @@ public class MDC {
         BigInteger p1 = new BigInteger("1");
         BigInteger q;
         BigInteger p;
-        while (b.compareTo(new BigInteger("0")) > 0) {
+        while (b.compareTo(new BigInteger("0")) > 0) { // O(n^3) [6]
             BigInteger r = a.mod(b);
             if(r.compareTo(new BigInteger("0")) > 0) {
                 q = a.divide(b);

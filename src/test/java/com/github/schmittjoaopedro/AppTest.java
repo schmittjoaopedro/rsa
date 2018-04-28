@@ -3,8 +3,6 @@ package com.github.schmittjoaopedro;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.math.BigInteger;
-
 public class AppTest {
 
     @Test

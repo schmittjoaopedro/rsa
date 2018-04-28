@@ -8,14 +8,14 @@ import java.math.MathContext;
 
 public class BruteForce {
 
-    public static String solve(PublicKey publicKey, String crypt) {
+    public static String solve(PublicKey publicKey, String crypt) { // O(2^n)
         BigInteger p = null;
         BigInteger q = null;
         BigInteger n = publicKey.n;
         BigInteger max = BigDecimalMath.sqrt(new BigDecimal(n), new MathContext(0)).toBigInteger();
         BigInteger i = new BigInteger("3");
-        for(; i.compareTo(max) <= 0; i = i.add(new BigInteger("2"))) {
-            if(n.mod(i).equals(new BigInteger("0"))) {
+        for(; i.compareTo(max) <= 0; i = i.add(new BigInteger("2"))) { // O(2^n)
+            if(n.mod(i).equals(new BigInteger("0"))) { // O(n^2)
                 p = n.divide(i);
                 q = i;
                 break;
@@ -23,11 +23,11 @@ public class BruteForce {
         }
         MDC mdc = new MDC();
         mdc.a = publicKey.e;
-        mdc.b = getTotientEuler(p, q);
+        mdc.b = getTotientEuler(p, q); // O(n^2)
         PrivateKey privateKey = new PrivateKey();
         privateKey.n = publicKey.n;
-        privateKey.d = mdc.getModInv();
-        return privateKey.decrypt(crypt);
+        privateKey.d = mdc.getModInv(); // O(n^3)
+        return privateKey.decrypt(crypt); // O(n^3)
     }
 
     private static BigInteger getTotientEuler(BigInteger p, BigInteger q) {

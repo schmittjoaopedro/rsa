@@ -38,25 +38,25 @@ public class RSA {
         this.keySize = keySize;
     }
 
-    public void generateKeys() {
-        generatePrimeNumbers();
-        n = p.multiply(q);
-        phi = getTotientEuler();
-        createPublicKey();
-        createPrivateKey();
+    public void generateKeys() { // O(n^4)
+        generatePrimeNumbers(); // O(n^4)
+        n = p.multiply(q); // O(n^2)
+        phi = getTotientEuler(); // O(n^2)
+        createPublicKey(); // O(n^3)
+        createPrivateKey(); // O(n^3)
     }
 
-    private void generatePrimeNumbers() {
-        int half = keySize / 2;
+    private void generatePrimeNumbers() { // O(n^4)
+        int half = keySize / 2; // O(n) considerando operação de shift e O(n^2) divisão normal da escola
         while(p == null) {
-            BigInteger temp = getRandomNumber(half);
-            if(temp.compareTo(lowBound) > 0 && isPrime(temp)) {
+            BigInteger temp = getRandomNumber(half); // O(1), necessita de mais buscas para entender como analisar essa complexidade
+            if(temp.compareTo(lowBound) > 0 && isPrime(temp)) { // O(n^4)
                 p = temp;
             }
         }
         while(q == null) {
-            BigInteger temp = getRandomNumber(half);
-            if(temp.compareTo(lowBound) > 0 && !temp.equals(p) && isPrime(temp)) {
+            BigInteger temp = getRandomNumber(half); // O(1)
+            if(temp.compareTo(lowBound) > 0 && !temp.equals(p) && isPrime(temp)) { // O(n^4)
                 q = temp;
             }
         }
@@ -80,8 +80,10 @@ public class RSA {
      *
      *      totient(n) = totient(p*q) = totient(p) * totient(q) = (p-1)(q-1).
      */
-    private BigInteger getTotientEuler() {
-        return p.subtract(new BigInteger("1")).multiply(q.subtract(new BigInteger("1")));
+    private BigInteger getTotientEuler() { // O(n^2)
+        BigInteger p1 = p.subtract(new BigInteger("1")); // O(n)
+        BigInteger q1 = q.subtract(new BigInteger("1")); // O(n)
+        return p1.multiply(q1); // O(n^2)
     }
 
     /**
@@ -106,11 +108,11 @@ public class RSA {
         publicKey.n = n;
         publicKey.keySize = keySize;
         for(BigInteger e : tries) {
-            if(e.compareTo(phi) > 0) continue;
+            if(e.compareTo(phi) > 0) continue; // O(n)
             MDC mdc = new MDC();
             mdc.a = e;
             mdc.b = phi;
-            if(mdc.getMDC().equals(new BigInteger("1"))) {
+            if(mdc.getMDC().equals(new BigInteger("1"))) { // O(n^3)
                 publicKey.e = e;
                 break;
             }
@@ -118,14 +120,14 @@ public class RSA {
         if(publicKey.e == null) throw new RuntimeException("Not found public key");
     }
 
-    private void createPrivateKey() {
+    private void createPrivateKey() { // O(n^3)
         privateKey = new PrivateKey();
         privateKey.n = n;
         privateKey.keySize = keySize;
         MDC mdc = new MDC();
         mdc.a = publicKey.e;
         mdc.b = phi;
-        privateKey.d = mdc.getModInv();
+        privateKey.d = mdc.getModInv(); // O(n^3)
     }
 
     /**
@@ -181,10 +183,10 @@ public class RSA {
      *      a^(p-1) = 1 mod p
      *
      */
-    public boolean isPrime(BigInteger n) {
+    public boolean isPrime(BigInteger n) { // O(n^4)
         // Todos número mod 2 que da resto zero é par, logo não é primo. Não estamos validando o dois
         // pois assume-se que sempre serão testados valores grandes.
-        if(isMod2(n)) {
+        if(isMod2(n)) { // Divisão = O(n^2)
             return false;
         } else {
             // Algoritmo de Miller-Rabin é usado para testar se um dado número ímpar é primo. Inicialmente qualquer
@@ -195,26 +197,26 @@ public class RSA {
             //
             // Se "n" for um número binário o resultado será alcançado deslocando-se o número para esquerda até encontrar
             // o primeiro bit 1 após k deslocamentos [1].
-            BigInteger n1 = n.subtract(new BigInteger("1"));
+            BigInteger n1 = n.subtract(new BigInteger("1")); // O(n)
             int k = 0;
             BigInteger q = n1;
-            while (isMod2(q)) {
-                if(q.equals(new BigInteger("0"))) return false;
-                q = q.divide(new BigInteger("2"));
-                k++;
+            while (isMod2(q)) { // Divisão vezes n bits que reduzem a cada divisão por 2 = O(n^3)
+                if(q.equals(new BigInteger("0"))) return false; // Comparação = O(n)
+                q = q.divide(new BigInteger("2")); // Divisão = O(n^2)
+                k++; // O(n)
             }
             // A teoria dos números diz que os primos próximos de "n" são espaçados em média a cada t = ln(n)/2 inteiros.
             // assim a probabilidade de um número "n" composto não ser detectado como composto é de 1/4^t [1].
-            long times = BigDecimalMath.log(new BigDecimal(n), new MathContext(0)).longValue() / 2;
-            for(long j = 0; j < times; j++) {
-                if(!isPrimeMillerRabin(n, k, q)) return false;
+            double times = ln(n) / 2; // O(1)
+            for(long j = 0; j < times; j++) { // O(n), é aproximadamente o número de bits
+                if(!isPrimeMillerRabin(n, k, q)) return false; // O(n^3)
             }
             return true;
         }
     }
 
     private boolean isMod2(BigInteger n) {
-        return n.mod(new BigInteger("2")).compareTo(new BigInteger("0")) == 0;
+        return n.mod(new BigInteger("2")).compareTo(new BigInteger("0")) == 0; // O(n^2) algorithm from Knuth
     }
 
     /**
@@ -231,15 +233,23 @@ public class RSA {
      *  possiblidades explicam a probabilidade menor que 1/4 em determinar um número composto como primo.
      */
     private boolean isPrimeMillerRabin(BigInteger n, int k, BigInteger q) {
-        BigInteger a = getRandomNumber(n);
+        BigInteger a = getRandomNumber(n); // O(1)
         // a^q mod n == 1
-        if(a.modPow(q, n).compareTo(new BigInteger("1")) == 0) return true;
+        if(a.modPow(q, n).compareTo(new BigInteger("1")) == 0) return true; // Exponenciação modular = O(n^3) [6]
         for (int j = 0; j < k; j++) {
             // a^((2^j)*q) mod n
-            BigInteger mod = a.modPow(new BigInteger("2").pow(j).multiply(q), n);
-            if(mod.compareTo(n.subtract(new BigInteger("1"))) == 0) return true;
+            BigInteger mod = a.modPow(new BigInteger("2").pow(j).multiply(q), n); // exponenciação modular = O(n^3) [6]
+            if(mod.compareTo(n.subtract(new BigInteger("1"))) == 0) return true; // Subtract e compare = O(n) [6]
         }
         return false;
+    }
+
+    public static double ln(BigInteger val) {
+        int blex = val.bitLength() - 1022; // any value in 60..1023 is ok
+        if (blex > 0)
+            val = val.shiftRight(blex);
+        double res = Math.log(val.doubleValue());
+        return blex > 0 ? res + blex * Math.log(2.0) : res;
     }
 
 }

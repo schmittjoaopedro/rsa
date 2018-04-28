@@ -7,12 +7,10 @@ public class PollardForce {
     public static String solve(PublicKey publicKey, String crypt) {
         BigInteger p = factorize(publicKey.n);
         BigInteger q = publicKey.n.divide(p);
-        MDC mdc = new MDC();
-        mdc.a = publicKey.e;
-        mdc.b = getTotientEuler(p, q);
+        BigInteger phi = getTotientEuler(p, q);
         PrivateKey privateKey = new PrivateKey();
         privateKey.n = publicKey.n;
-        privateKey.d = mdc.getModInv();
+        privateKey.d = Euclid.getModInv(publicKey.e, phi);
         return privateKey.decrypt(crypt);
     }
 
@@ -27,7 +25,7 @@ public class PollardForce {
      * buscar da solução do problema.
      * O algoritmo de Pollards-rho nunca imprime um divisor não trivial (ou seja, d != 1 e d != n).
      */
-    public static BigInteger factorize(BigInteger n) {
+    public static BigInteger factorize(BigInteger n) { // O(sqrt(p)), p sendo o fator primo de n [9]
         /*
         // From wikipedia
         BigInteger xFixed = new BigInteger("2");
@@ -59,6 +57,8 @@ public class PollardForce {
         while(cont) { // Procura por fatores de n
             i = i.add(BigInteger.ONE);
             // Usa a recorrencia xi = (x_{i-1}^2 - 1) mod n para produzir o próximo xi na sequência x1, x2, x3, ...
+            // supomos que essa função se comporta "aleatoriamente", porque ela retira um elemento "aleatoriamente" distribuido
+            // no conjunto Zn antes de ciclar.
             xi = xi.pow(2).subtract(BigInteger.ONE).mod(n);
             d = gcd(y.subtract(xi), n);
             if(d.compareTo(BigInteger.ONE) != 0 && d.compareTo(n) != 0) {

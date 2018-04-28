@@ -21,12 +21,10 @@ public class BruteForce {
                 break;
             }
         }
-        MDC mdc = new MDC();
-        mdc.a = publicKey.e;
-        mdc.b = getTotientEuler(p, q); // O(n^2)
+        BigInteger phi = getTotientEuler(p, q); // O(n^2)
         PrivateKey privateKey = new PrivateKey();
         privateKey.n = publicKey.n;
-        privateKey.d = mdc.getModInv(); // O(n^3)
+        privateKey.d = Euclid.getModInv(publicKey.e, phi); // O(n^3)
         return privateKey.decrypt(crypt); // O(n^3)
     }
 

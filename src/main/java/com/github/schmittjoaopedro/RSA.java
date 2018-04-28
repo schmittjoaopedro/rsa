@@ -1,10 +1,6 @@
 package com.github.schmittjoaopedro;
 
-import ch.obermuhlner.math.big.BigDecimalMath;
-
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.util.Random;
 
 public class RSA {
@@ -109,10 +105,7 @@ public class RSA {
         publicKey.keySize = keySize;
         for(BigInteger e : tries) {
             if(e.compareTo(phi) > 0) continue; // O(n)
-            MDC mdc = new MDC();
-            mdc.a = e;
-            mdc.b = phi;
-            if(mdc.getMDC().equals(new BigInteger("1"))) { // O(n^3)
+            if(Euclid.getMDC(e, phi).equals(new BigInteger("1"))) { // O(n^3)
                 publicKey.e = e;
                 break;
             }
@@ -124,10 +117,7 @@ public class RSA {
         privateKey = new PrivateKey();
         privateKey.n = n;
         privateKey.keySize = keySize;
-        MDC mdc = new MDC();
-        mdc.a = publicKey.e;
-        mdc.b = phi;
-        privateKey.d = mdc.getModInv(); // O(n^3)
+        privateKey.d = Euclid.getModInv(publicKey.e, phi); // O(n^3)
     }
 
     /**

@@ -147,7 +147,7 @@ public class RSA {
     /**
      * Gera um número aleatório limitado ao tamanho máximo de n.
      */
-    private BigInteger getRandomNumber(BigInteger n) {
+    public BigInteger getRandomNumber(BigInteger n) {
         Random random = new Random();
         BigInteger result = new BigInteger(n.bitLength(), random);
         while(result.compareTo(n) >= 0 || result.compareTo(new BigInteger("1")) < 0) {

@@ -63,14 +63,14 @@ public class AppTest {
         Assert.assertEquals(msg, decrypted);
 
         long time = System.currentTimeMillis();
-        String bruteForce = BruteForce.solve(rsa.getPublicKey(), encrypted);
-        Assert.assertEquals(msg, bruteForce);
-        System.out.println("BruteForce = " + (System.currentTimeMillis() - time));
-
-        time = System.currentTimeMillis();
-        bruteForce = PollardForce.solve(rsa.getPublicKey(), encrypted);
+        String bruteForce = PollardForce.solve(rsa.getPublicKey(), encrypted);
         Assert.assertEquals(msg, bruteForce);
         System.out.println("PollardForce = " + (System.currentTimeMillis() - time));
+
+        time = System.currentTimeMillis();
+        bruteForce = BruteForce.solve(rsa.getPublicKey(), encrypted);
+        Assert.assertEquals(msg, bruteForce);
+        System.out.println("BruteForce = " + (System.currentTimeMillis() - time));
     }
 
 }

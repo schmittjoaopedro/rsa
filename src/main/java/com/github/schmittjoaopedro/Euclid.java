@@ -37,6 +37,7 @@ public class Euclid {
      * Para lidar sempre com inversos múltiplicativos inteiros, existe uma versão do algoritmo
      * estendido de euclides que caĺcula o valor de unverso da seguinte forma:
      *      p_{i} = p_{i-2} - p_{i-1}*q_{i-2}
+     * Como p_{0} iniciando em 0 e p_{1} inciando em 1.
      */
     public static BigInteger getModInv(BigInteger x, BigInteger N) {
         if(x.compareTo(N) > 0) {

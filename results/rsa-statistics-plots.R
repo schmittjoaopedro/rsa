@@ -67,15 +67,24 @@ if(plotType == "all_brute") {
     gg <- gg + ggtitle("All Encrypt")
     gg <- gg + xlab("Key size")
     gg <- gg + ylab("Time (s)")
-    gg <- gg + geom_line(aes(y = generate_keys_mean_brute, color = "Brute"))
-    gg <- gg + geom_line(aes(y = generate_keys_mean_pollard, color = "Pollard"))
+    gg <- gg + geom_line(aes(y = encrypt_mean_brute, color = "Brute"))
+    gg <- gg + geom_line(aes(y = encrypt_mean_pollard, color = "Pollard"))
     gg
 } else if (plotType == "all_decrypt") {
     gg <- ggplot(allDataMerged, aes(key_size))
     gg <- gg + ggtitle("All Decrypt")
     gg <- gg + xlab("Key size")
     gg <- gg + ylab("Time (s)")
-    gg <- gg + geom_line(aes(y = generate_keys_mean_brute, color = "Brute"))
-    gg <- gg + geom_line(aes(y = generate_keys_mean_pollard, color = "Pollard"))
+    gg <- gg + geom_line(aes(y = decrypt_mean_brute, color = "Brute"))
+    gg <- gg + geom_line(aes(y = decrypt_mean_pollard, color = "Pollard"))
+    gg
+} else if (plotType = "all_rsa") {
+    gg <- ggplot(pollardData, aes(key_size))
+    gg <- gg + ggtitle("RSA")
+    gg <- gg + xlab("Key size")
+    gg <- gg + ylab("Time (s)")
+    gg <- gg + geom_line(aes(y = generate_keys_mean, color = "Generate Keys"))
+    gg <- gg + geom_line(aes(y = encrypt_mean, color = "Encrypt"))
+    gg <- gg + geom_line(aes(y = decrypt_mean, color = "Decrypt"))
     gg
 }

@@ -1,4 +1,5 @@
 require(ggplot2)
+require(gridExtra)
 require(dplyr)
 
 setwd("/home/joao/projects/master-degree/rsa/results")
@@ -79,12 +80,20 @@ if(plotType == "all_brute") {
     gg <- gg + geom_line(aes(y = decrypt_mean_pollard, color = "Pollard"))
     gg
 } else if (plotType = "all_rsa") {
-    gg <- ggplot(pollardData, aes(key_size))
-    gg <- gg + ggtitle("RSA")
-    gg <- gg + xlab("Key size")
-    gg <- gg + ylab("Time (s)")
-    gg <- gg + geom_line(aes(y = generate_keys_mean, color = "Generate Keys"))
-    gg <- gg + geom_line(aes(y = encrypt_mean, color = "Encrypt"))
-    gg <- gg + geom_line(aes(y = decrypt_mean, color = "Decrypt"))
-    gg
+    #RSA
+    gg1 <- ggplot(pollardData, aes(key_size))
+    gg1 <- gg1 + ggtitle("RSA")
+    gg1 <- gg1 + xlab("Tamanho da chave (bits)")
+    gg1 <- gg1 + ylab("Tempo (s)")
+    gg1 <- gg1 + geom_line(aes(y = generate_keys_mean, color = "Geração das chaves"))
+    gg1 <- gg1 + geom_line(aes(y = encrypt_mean, color = "Criptografar"))
+    gg1 <- gg1 + geom_line(aes(y = decrypt_mean, color = "Descriptografar"))
+    #Broke
+    gg2 <- ggplot(allDataMerged, aes(key_size))
+    gg2 <- gg2 + ggtitle("Quebra da chave")
+    gg2 <- gg2 + xlab("Tamanho da chave (bits)")
+    gg2 <- gg2 + ylab("Tempo (s)")
+    gg2 <- gg2 + geom_line(aes(y = brute_force_mean_brute, color = "Força bruta"))
+    gg2 <- gg2 + geom_line(aes(y = brute_force_mean_pollard, color = "Pollard"))
+    grid.arrange(gg1, gg2, ncol = 2)
 }

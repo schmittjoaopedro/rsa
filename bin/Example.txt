@@ -1,0 +1,18 @@
+C:\projects\rsa\bin>java -jar rsa-1.0.0-jar-with-dependencies.jar
+usage: rsa
+ -a,--algorithm <algorithm>       Algorithm brute or pollard
+ -b,--brute <public_key_file>     Break code with brute-force
+ -d,--decrypt <pri_key_file>      Decrypt file
+ -e,--encrypt <pub_key_file>      Encrypt file
+ -g,--generateKeys <key_size>     Generate keys
+ -i,--input <input_file>          Input file for processing
+ -o,--output <output_file>        Output file
+ -p,--pollard <public_key_file>   Break code with pollard-force
+ -s,--samples <samples>           Samples separated by comma
+ -t,--testTrials <trials>         Trials number
+
+C:\projects\rsa\bin>java -jar rsa-1.0.0-jar-with-dependencies.jar -g 1024
+
+C:\projects\rsa\bin>java -jar rsa-1.0.0-jar-with-dependencies.jar -e public_key.rsa -i message.txt
+
+C:\projects\rsa\bin>java -jar rsa-1.0.0-jar-with-dependencies.jar -d private_key.rsa -i encrypted_message.rsa

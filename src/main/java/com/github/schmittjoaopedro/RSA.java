@@ -88,10 +88,6 @@ public class RSA {
      *
      * Esses cinco números são os cinco primeiros números de Fermat, referidos como F0 até F4, onde Fx = 2^(2^x) + 1. Entretanto
      * somente os cinco primeiros números são primos, o número F5 já não é primo: F5 = 4294967297 = 641 × 6700417.
-     *
-     * Se "e" for um número ímpar primo então pode-se fazer um test menos caro "(p mod e) != 1" ao invés de "mdc(phi, e) = 1".
-     * Isso porque se "e" for primo então "gcd(p-1, e) > 1" se e somente se "p-1" for múltiplo de "e". Que é, se "p-1 = 0 mod e"
-     * ou "p = 1 mod e". Consequentemente, "gdc(p-1, e) = 1" se e somente se "1 != p mod e".
      */
     private void createPublicKey() {
         BigInteger[] tries = new BigInteger[5];
